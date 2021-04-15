@@ -1,10 +1,10 @@
 # Visulaizations for rNewhall outputs, specifically for submission of NRCS proposal
-# ***NOTE: This using the front half of the rNewhall Model 
+# ***NOTE: This using the front half of the rNewhall Model
 # 08/06/2019
 
 # rNewhall water balance figure
 
-# Clear workspace and load required libraries 
+# Clear workspace and load required libraries
 rm(list = ls())
 library(ggplot2)
 library(reshape2)
@@ -15,7 +15,7 @@ library(dplyr)
 # load and summarize data
 meso.data  = read.csv("/Users/grantsnitker/Dropbox/Smoke/UGA_Postdoc/R_scripts/rNewhall/data/Marena_OK_mesonet_data.csv")
 meso.data.sub = subset(meso.data, YEAR == '2009')
-meso.data.monthly = meso.data.sub  %>% dplyr::group_by(MONTH) %>% 
+meso.data.monthly = meso.data.sub  %>% dplyr::group_by(MONTH) %>%
   dplyr::summarise(
     precp = (sum(RAIN) *25.4),
     temp = (mean(TAVG) - 32) * 5/9)
@@ -29,10 +29,10 @@ latitude = 36.0643
 longitude = -97.2127
 nsHemisphere = 'N'
 ewHemisphere = 'W'
-#precipitation = c(5.33, 57.66, 110.74,110.74,74.68,49.53,143.26,159.77,92.20,159.77,10.16,15.49)
-#temperature = c(1.89,-1.33,2.33,5.94,12.72,18.22,17.11,18.44,15.50,7.50,5.33,-4.67)
-precipitation = round(meso.data.monthly$precp, 2)
-temperature = round(meso.data.monthly$temp, 2)
+precipitation = c(5.33, 57.66, 110.74,110.74,74.68,49.53,143.26,159.77,92.20,159.77,10.16,15.49)
+temperature = c(1.89,-1.33,2.33,5.94,12.72,18.22,17.11,18.44,15.50,7.50,5.33,-4.67)
+# precipitation = round(meso.data.monthly$precp, 2)
+# temperature = round(meso.data.monthly$temp, 2)
 
 
 
@@ -85,13 +85,13 @@ p = ggplot(climograph.data, aes(x = months)) +
   scale_x_continuous(name ="",breaks=c(1:12),labels = months.name)+
   scale_color_manual(name = "", values = c('#3732BB','#BA283B'),  labels = c("Precipitation", "Potential Evapotranspriation")) +
   scale_fill_manual(name = "  ", values = c('#3732BB','#BA283B'),  labels = c("Surplus", "Utilization (PET > Precipitation)")) +
-  theme_bw() + theme(legend.position="bottom", legend.box = "vertical") + 
+  theme_bw() + theme(legend.position="bottom", legend.box = "vertical") +
   ggtitle(paste("Station: ", name, sep=""), subtitle = paste(date.interval))
 
-  
+
 jpeg("./Output/Climograph_Marena_OK_2009.jpeg", width = 8, height = 6.5, units = 'in', res = 300)
 p
 dev.off()
-  
-  
-  
+
+
+

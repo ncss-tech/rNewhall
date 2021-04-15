@@ -1,12 +1,13 @@
+## Create Classic Newhall constants
+## Adapted by D.E. Beaudette
+## R translation by M. Levi et al.
+## Original version:
+
+## Init / save to .rda for package use
 
 
 
-
-#Create contants (soil profile properties, correction factors for Thornthwaite eq., etc)
-water.per.slot <- water.holding.capacity/((soil.profile.dims^2))
-accretion.order <- c(1:(soil.profile.dims^2))
-
-# Create contants (soil profile properties, correction factors for Thornthwaite eq., etc)
+# Create constants (soil profile properties, correction factors for Thornthwaite eq., etc)
 depletion.order <- c(
   8, 7, 16, 6, 15, 24, 5, 14, 23, 32, 4, 13, 22, 31, 40, 3, 12, 21, 30,
   39, 48, 2, 11, 20, 29, 38, 47, 56, 1, 10, 19, 28, 37, 46, 55, 64, 9, 18,
@@ -93,17 +94,21 @@ ksouth <- matrix(
   )
 )
 
-# set moisture calendar and moisture ststes to ()
-moisture.states <- c(0)
-moisture.calendar <- c()
 
 
-# Create a s4 class for rNewhall output
-# setClass("gg")
-# setClass("newhalloutput", slots = representation(day = "Date", moisture.matrix="numeric", avail.moisture.ratio = "numeric", moisture.state = "numeric", daily.plot = "gg"))
+## this needs a new name
+constants.classic <- list(
+  depletion.order = depletion.order,
+  depletion.req = depletion.req,
+  temp.bins = temp.bins,
+  pe.bins = pe.bins,
+  knorth = knorth,
+  ksouth = ksouth
+)
+
+# save to persistent .rda
+save(constants.classic, file = '../data/constants.classic.rda')
 
 
-setClass("gg")
-setClass("newhalloutput", slots = representation(soilprofile="numeric",moiststates="numeric",midmonthplot="gg", midmonthplotHP= "gg", endmonthplot = "gg", moistplot = "gg"))
 
 

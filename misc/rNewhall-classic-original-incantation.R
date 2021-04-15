@@ -1,3 +1,13 @@
+
+##
+## do not use this version
+##
+
+
+
+
+
+
 # Developing R version of the Java Newhall simulation
 # This is begining as a translation of the JavaNewhall simulation (which was itself traslated from BASIC), but
 # will also be a re-imagining of the workflow and outputs of the model - might lead to a package
@@ -75,15 +85,15 @@ setClass("newhalloutput", slots = representation(soilprofile="numeric",moiststat
 rNewhall =  function(m){
   #get("soil.profile")
   #print(sum(soil.profile))
-  
+
   # 2.1 Calculate precip and moisture conditions for both light Precip and heavy precip within the month
-  
+
   # 2.1.1 Define monthly precipitation
   MP = precipitation[m]
-  
+
   # 2.1.2 Calculate light Precipitation (LP) LP= MP/2
   LP = MP / 2
-  
+
   # 2.1.3 potential evapotranspiration
   # Need to calculate potential evapotranspiration (PE) vis the Thornthwaite (1948) equation
   # For each month PE(no adjustment) = 16(10T/I)^a (in mm)
@@ -108,21 +118,21 @@ rNewhall =  function(m){
   } else {
     k = ksouth[findInterval(latitude,as.numeric(dimnames(ksouth)[[1]])),m]
   }
-  
+
   PE = raw.PE * k
-  
+
   # 2.1.4 Calculate effect of PE; called Net moisture activity (NMA) in Newhall and Berdanier (1996) and net potential
   # evapotranspiration (NPE) in Van Wambeke (2000). If NPE > 0, accretion will take place during this period; otherwise,
   # water will be extracted from the profile
   NMA = (LP - PE)
-  
-  
+
+
   # 2.1.5 Calculate heavy precipitation (HP). HP = MP/2 All HP enters the profile as accretion.
   HP = MP / 2
-  
+
   # 2.1.6 Finally, calculate the montly water balance for the profile
   m.water.balance = MP - PE
-  
+
   # 2.2 Model changes in water content during each month (both accretion and depletion)
   # 2.2.1 First half of the month (15 days) add or remove water from profile based on LP
   # If NPE > 0, apply NPE/2 to fill available slots; if NPE < 0, apply NPE/2 to deplete filled slots
@@ -164,7 +174,7 @@ rNewhall =  function(m){
       if (sum(soil.profile) == 0) break
     }
   }
-  
+
   # # record mositure condition (add to moisture.states vector)
   if (sum(soil.profile[c(9,17,25)]) == 0){
     current.moisture.condition = 1
@@ -176,7 +186,7 @@ rNewhall =  function(m){
     current.moisture.condition  = 2
   }
   moisture.states <<- append(moisture.states,current.moisture.condition)
-  
+
   #Duration of moisture state
   # m.diff = moisture.states[(length(moisture.states))] - moisture.states[(length(moisture.states)-1)]
   # if (m.diff == 0){
@@ -188,7 +198,7 @@ rNewhall =  function(m){
   #   moisture.calendar <<- append(moisture.calendar,c(rep(moisture.states[(length(moisture.states)-1)], d.initial),
   #                                rep(moisture.states[(length(moisture.states))], d.end)))
   # }
-  
+
   # 2.2.2 Create mid month graphs (for testing only)
   soil.profile.matrix = matrix(soil.profile, nrow = soil.profile.dims, ncol = soil.profile.dims, byrow = T)
   soil.profile.matrix.plot = melt(soil.profile.matrix)
@@ -209,7 +219,7 @@ rNewhall =  function(m){
     geom_hline(yintercept=5.5) + geom_hline(yintercept=6.5) + geom_hline(yintercept=7.5) + geom_hline(yintercept=8.5) + geom_vline(xintercept=.5) +
     geom_vline(xintercept=1.5) + geom_vline(xintercept=2.5) + geom_vline(xintercept=3.5) + geom_vline(xintercept=4.5) + geom_vline(xintercept=5.5) + geom_vline(xintercept=6.5) +
     geom_vline(xintercept=7.5) + geom_vline(xintercept=8.5) +labs(fill = "% Filled")
-  
+
   # 2.2.3 Heavy rain at the mid-point of the month all water from HP is added to the profile in available slots
   #print ("Big storm, filling up")
   available.HP = HP
@@ -238,7 +248,7 @@ rNewhall =  function(m){
     current.moisture.condition  = 2
   }
   moisture.states <<- append(moisture.states,current.moisture.condition)
-  
+
   soil.profile.matrix = matrix(soil.profile, nrow = soil.profile.dims, ncol = soil.profile.dims, byrow = T)
   soil.profile.matrix.plot = melt(soil.profile.matrix)
   soil.profile.matrix.plot$value = soil.profile.matrix.plot$value/water.per.slot
@@ -258,7 +268,7 @@ rNewhall =  function(m){
     geom_hline(yintercept=5.5) + geom_hline(yintercept=6.5) + geom_hline(yintercept=7.5) + geom_hline(yintercept=8.5) + geom_vline(xintercept=.5) +
     geom_vline(xintercept=1.5) + geom_vline(xintercept=2.5) + geom_vline(xintercept=3.5) + geom_vline(xintercept=4.5) + geom_vline(xintercept=5.5) + geom_vline(xintercept=6.5) +
     geom_vline(xintercept=7.5) + geom_vline(xintercept=8.5)+labs(fill = "% Filled")
-  
+
   # 2.2.4 Second half of the month (15 days) add or remove water from profile based on LP
   # If NPE > 0, apply NPE/2 to fill available slots; if NPE < 0, apply NPE/2 to deplete filled slots
   if (NMA > 0) {
@@ -310,8 +320,8 @@ rNewhall =  function(m){
     current.moisture.condition  = 2
   }
   moisture.states <<- append(moisture.states,current.moisture.condition)
-  
-  
+
+
   #  m.diff = moisture.states[(length(moisture.states))] - moisture.states[(length(moisture.states)-1)]
   # if (m.diff == 0){
   #   moisture.calendar <<- append(moisture.calendar,rep(moisture.states[(length(moisture.states))], 15))
@@ -322,7 +332,7 @@ rNewhall =  function(m){
   #   moisture.calendar <<- append(moisture.calendar,c(rep(moisture.states[(length(moisture.states)-1)], d.initial),
   #                                                    rep(moisture.states[(length(moisture.states))], d.end)))
   # }
-  
+
   # 2.2.5 Calculate moisture condition duration
   # Steps needed:
   # 1) Determine how much of a difference there is  soil moisture between LP periods:
@@ -331,9 +341,9 @@ rNewhall =  function(m){
   # 2a) calculate intermediate stage (if coded as (-)2)
   # 3) calculate duration of final moisture state (15 - duration of initial state )
   # 4) repeat for each 2 week period
-  
+
   #moisture.conditions = c(moisture.condition.1, moisture.condition.2, moisture.condition.3)
-  
+
   # 2.2.6 Create end month graphs (for testing only)
   soil.profile.matrix = matrix(soil.profile, nrow = soil.profile.dims, ncol = soil.profile.dims, byrow = T)
   soil.profile.matrix.plot = melt(soil.profile.matrix)
@@ -366,8 +376,8 @@ rNewhall =  function(m){
     theme_bw() + theme(axis.text.x=element_text(size=10, angle=0, vjust=0.3),
                        axis.text.y=element_text(size=10),
                        plot.title=element_text(size=14))
-  
-  
+
+
   # 2.2.8 Create output
   soil.profile <<- soil.profile # pull out this value so it can be used in the next iteration
   #print(sum(soil.profile))
