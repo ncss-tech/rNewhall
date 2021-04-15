@@ -1,6 +1,6 @@
 
 ##
-## use this as reference, re-factoring
+## use this as reference, re-factoring into /R/Newhall.classic.R
 ##
 
 

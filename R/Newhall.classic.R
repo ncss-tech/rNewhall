@@ -1,11 +1,68 @@
-## Refactoring code / concepts delivered by Matt Levi et al.
+## Re-factoring code / concepts delivered by Matt Levi et al.
 ## D.E. Beaudette
 ## 2021-04-15
 
 
+## TODO:
+# * coordinates + NS + EW should all be based on either text coordinates or sf object
 
 
-Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperature, latitude, longitude, nsHemisphere, ewHemisphere){
+Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, ewHemisphere) {
+
+  ## better initial configuration:
+  # * specified by arguments
+  # * spin-up model
+
+  ## spin-up approach
+  # diff = 1
+  # iterations = 0
+  # soil.profile.compare = rep(0, times = 64) # this is 64 (water fills entire profile) * 12 (months); Maximum amount of water possible
+  # while (diff > 0.01) {
+  #   out = lapply(1:12, rNewhall.classic)
+  #   diff = abs(1 - (sum(soil.profile.compare) / sum(out[[12]]@soilprofile)))
+  #   soil.profile.compare = out[[12]]@soilprofile
+  #   iterations = iterations +1
+  # }
+  # print(paste("Spin up completed in", iterations, "iterations", sep = " "))
+
+
+  # initial configuration
+  moisture.states <- c(0)
+  moisture.calendar <- c()
+
+  ## TODO: soil.profile.dims^2 ?
+  # this is 64 (water fills entire profile) * 12 (months); Maximum amount of water possible
+  soil.profile <- rep(0, times = 64)
+
+  ## TODO: verify that this is working as expected
+  # register in env
+  assign('moisture.states', moisture.states, envir = classic.env)
+  assign('moisture.calendar', moisture.calendar, envir = classic.env)
+  assign('soil.profile', soil.profile, envir = classic.env)
+
+
+  # iterate over months
+  x <- lapply(
+    1:12,
+    .Newhall.classic.month,
+    AWC = AWC,
+    PPT = PPT,
+    TAVG = TAVG,
+    latitude = latitude,
+    longitude = longitude,
+    nsHemisphere = nsHemisphere,
+    ewHemisphere = ewHemisphere
+  )
+
+  return(x)
+
+}
+
+
+
+
+
+.Newhall.classic.month <-  function(m, AWC, PPT, TAVG, latitude, longitude, nsHemisphere, ewHemisphere){
 
   ## setup
 
@@ -17,6 +74,7 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
   ## TODO: currently modifying via global variables...
   #        set outside function scope for now
 
+  ## DEB: moved to classic.env
   # # set moisture calendar and moisture states to ()
   # moisture.states <- c(0)
   # moisture.calendar <- c()
@@ -26,17 +84,19 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
   soil.profile.dims <- 8
 
   # model bins
-  water.per.slot <- water.holding.capacity/((soil.profile.dims^2))
+  water.per.slot <- AWC/((soil.profile.dims^2))
   accretion.order <- c(1:(soil.profile.dims^2))
 
-  # this is 64 (water fills entire profile) * 12 (months); Maximum amount of water possible
-  # TODO: soil.profile.dims^2 ?
-  soil.profile <- rep(0, times = 64)
+
+  ## DEB: moved to classic.env
+  soil.profile <- get('soil.profile', envir = classic.env)
+
 
   # 2.1 Calculate precip and moisture conditions for both light Precip and heavy precip within the month
 
+  ## TODO: convert PPT -> scalar
   # 2.1.1 Define monthly precipitation
-  MP <- precipitation[m]
+  MP <- PPT[m]
 
   # 2.1.2 Calculate light Precipitation (LP) LP= MP/2
   LP <- MP / 2
@@ -47,21 +107,21 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
   # This value is then adjusted by a latitude constant (k) for each month  PE(Latitude adjusted) = k PE(no adjustment)
   # Define terms (from Thornthwaite 1948)
   # need to account for negative temperatures
-  I.m <- (temperature/5)^1.514
+  I.m <- (TAVG/5)^1.514
   I.m[is.nan(I.m)] <- 0
   # Note that this value is calculated for the whole year, but then used in each monthly calculation
   I <- sum(I.m)
 
   a <- (6.75*(10^-7)*(I^3)) - (7.71*(10^-5)*(I^2)) + (1.792*(10^-2)*I) + 0.49239
 
-  if (temperature[m] > 0 &  temperature[m] < 26.5){
-    raw.PE <- 16 * (10 * temperature[m] / I)^a
-  } else if (temperature[m] >= 38) { # If temp is over 38C, the PE value is fixed at 185.0mm
+  if (TAVG[m] > 0 &  TAVG[m] < 26.5){
+    raw.PE <- 16 * (10 * TAVG[m] / I)^a
+  } else if (TAVG[m] >= 38) { # If temp is over 38C, the PE value is fixed at 185.0mm
     raw.PE <- 185.0
-  } else if (temperature[m] < 0) { # If temp is over 38C, the PE value is fixed at 185.0mm
+  } else if (TAVG[m] < 0) { # If temp is over 38C, the PE value is fixed at 185.0mm
     raw.PE <- 0
   } else {
-    raw.PE <- pe.bins[findInterval(temperature[m], temp.bins)] #Use look up tables (temp.bins and pe.bins to assign a pe based on temperature)
+    raw.PE <- pe.bins[findInterval(TAVG[m], temp.bins)] #Use look up tables (temp.bins and pe.bins to assign a pe based on temperature)
   }
 
   # Adjust raw.PE using the K correction factor for daylight hours based on latitude
@@ -110,7 +170,7 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
       if (current.NMA == 0) break
 
       # if the soil profile is full, stop
-      if (sum(soil.profile) == water.holding.capacity) break
+      if (sum(soil.profile) == AWC) break
     }
   }
 
@@ -154,9 +214,10 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
     current.moisture.condition <- 2
   }
 
-  ## TODO: whoa, using global variables is a bad idea...
-  # is this to maintain state over months?
-  moisture.states <<- append(moisture.states, current.moisture.condition)
+  ## DEB
+  # maintain state via environment
+  moisture.states <- append(get('moisture.states', envir = classic.env), current.moisture.condition)
+  assign('moisture.states', moisture.states, envir = classic.env)
 
   #Duration of moisture state
   # m.diff = moisture.states[(length(moisture.states))] - moisture.states[(length(moisture.states)-1)]
@@ -208,7 +269,7 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
       available.HP =  available.HP - available.HP
     }
     if (available.HP == 0) break # if there is no more water from preip, stop
-    if (sum(soil.profile) == water.holding.capacity) break # if the soil profile is full, stop
+    if (sum(soil.profile) == AWC) break # if the soil profile is full, stop
   }
 
   # record moisture condition 2
@@ -224,7 +285,13 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
 
   ## TODO: whoa, using global variables is a bad idea...
   # is this to maintain state over months?
-  moisture.states <<- append(moisture.states,current.moisture.condition)
+  # moisture.states <<- append(moisture.states,current.moisture.condition)
+
+  ## DEB
+  # maintain state via environment
+  moisture.states <- append(get('moisture.states', envir = classic.env), current.moisture.condition)
+  assign('moisture.states', moisture.states, envir = classic.env)
+
 
   soil.profile.matrix = matrix(soil.profile, nrow = soil.profile.dims, ncol = soil.profile.dims, byrow = T)
   soil.profile.matrix.plot = melt(soil.profile.matrix)
@@ -271,7 +338,7 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
       # if there is no more water from PPT, stop
       if (current.NMA == 0) break
       # if the soil profile is full, stop
-      if (sum(soil.profile) == water.holding.capacity) break
+      if (sum(soil.profile) == AWC) break
     }
   }
 
@@ -317,7 +384,12 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
 
   ## TODO: whoa, using global variables is a bad idea...
   # is this to maintain state over months?
-  moisture.states <<- append(moisture.states,current.moisture.condition)
+  # moisture.states <<- append(moisture.states,current.moisture.condition)
+
+  ## DEB
+  # maintain state via environment
+  moisture.states <- append(get('moisture.states', envir = classic.env), current.moisture.condition)
+  assign('moisture.states', moisture.states, envir = classic.env)
 
 
   #  m.diff = moisture.states[(length(moisture.states))] - moisture.states[(length(moisture.states)-1)]
@@ -335,7 +407,7 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
   # Steps needed:
   # 1) Determine how much of a difference there is  soil moisture between LP periods:
   #    ex. states 1 to 2, 2 to 3, or 1 to 3. Can be coded as 0, (-)1 or (-)2
-  # 2) calcultae duration of initial state (15 * PE.trans / NPE )
+  # 2) calculate duration of initial state (15 * PE.trans / NPE )
   # 2a) calculate intermediate stage (if coded as (-)2)
   # 3) calculate duration of final moisture state (15 - duration of initial state )
   # 4) repeat for each 2 week period
@@ -348,6 +420,9 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
   soil.profile.matrix.plot <- melt(soil.profile.matrix)
 
   soil.profile.matrix.plot$value <- soil.profile.matrix.plot$value/water.per.slot
+
+  ## DEB: adding month
+  soil.profile.matrix.plot$Month <- m
 
   ## DEB: moving all visualization stuff out of main function
   # p3 = ggplot(soil.profile.matrix.plot, aes(x = Var2, y = Var1)) +
@@ -370,7 +445,9 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
 
   #
   # # 2.2.7 Create soil moisture condition plot
+  ## TODO: convert to factors
   moisture.conditions.dataframe <- data.frame(
+    Month = m,
     Period = c(1, 2, 3),
     Condition = c(
       moisture.states[(length(moisture.states)-2)],
@@ -378,23 +455,20 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
       moisture.states[length(moisture.states)])
     )
 
-  ## DEB: moving all visualization stuff out of main function
-  # p4 = ggplot(moisture.conditions.dataframe, aes(Period,Condition)) +
-  #   geom_col(fill = "#3182BD") +
-  #   scale_y_discrete(limits = c(1,2,3),labels = c("Dry", "Moist/Dry", "Moist"))+
-  #   scale_x_discrete(limits = c(1,2, 3),labels = c("Mid-Month 1","Mid-Month 2", "End of Month")) +
-  #   labs(x="", y="",
-  #        title=paste("Month ", m, sep = "")) +
-  #   theme_bw() + theme(axis.text.x=element_text(size=10, angle=0, vjust=0.3),
-  #                      axis.text.y=element_text(size=10),
-  #                      plot.title=element_text(size=14))
+  ## DEB: moved all visualization stuff out of main function
+  # p4 (moistplot) was here
 
 
   # 2.2.8 Create output
 
   ## TODO: whoa, using global variables is a bad idea...
   # is this to maintain state over months?
-  soil.profile <<- soil.profile # pull out this value so it can be used in the next iteration
+
+  ## DEB:
+  # maintain state via environment
+
+  # pull out this value so it can be used in the next iteration
+  assign('soil.profile', soil.profile, envir = classic.env)
 
   # debugging
   # print(sum(soil.profile))
@@ -405,7 +479,9 @@ Newhall.classic <-  function(m, water.holding.capacity, precipitation, temperatu
   ## return a list without elements that can be used to generate graphics
   res <- list(
     soilprofile = soil.profile,
-    moiststates = moisture.states
+    moiststates = moisture.states,
+    moisture.conditions.dataframe = moisture.conditions.dataframe,
+    soil.profile.matrix.plot = soil.profile.matrix.plot
   )
 
   return(res)

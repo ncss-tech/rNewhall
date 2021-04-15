@@ -1,4 +1,7 @@
 
+##
+## DEB: moved into /misc/init-Newhall-classic-constants
+##
 
 
 

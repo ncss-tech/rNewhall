@@ -1,3 +1,10 @@
+
+##
+## note that constants are in data/constants.classic.rda
+##
+
+
+
 # Visulaizations for rNewhall outputs, specifically for submission of NRCS proposal
 # ***NOTE: This using the front half of the rNewhall Model
 # 08/06/2019

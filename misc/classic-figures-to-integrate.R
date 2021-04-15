@@ -2,7 +2,7 @@
 
 
 
-p1 = ggplot(soil.profile.matrix.plot, aes(x = Var2, y = Var1)) +
+p1 <- ggplot(soil.profile.matrix.plot, aes(x = Var2, y = Var1)) +
   geom_raster(aes(fill=value)) +
   labs(x="", y="",
        title=paste("Month ", m, sep = "")) +
@@ -54,3 +54,14 @@ p3 = ggplot(soil.profile.matrix.plot, aes(x = Var2, y = Var1)) +
   geom_hline(yintercept=5.5) + geom_hline(yintercept=6.5) + geom_hline(yintercept=7.5) + geom_hline(yintercept=8.5) + geom_vline(xintercept=.5) +
   geom_vline(xintercept=1.5) + geom_vline(xintercept=2.5) + geom_vline(xintercept=3.5) + geom_vline(xintercept=4.5) + geom_vline(xintercept=5.5) + geom_vline(xintercept=6.5) +
   geom_vline(xintercept=7.5) + geom_vline(xintercept=8.5) +labs(fill = "% Filled")
+
+
+p4 <- ggplot(moisture.conditions.dataframe, aes(Period,Condition)) +
+  geom_col(fill = "#3182BD") +
+  scale_y_discrete(limits = c(1,2,3),labels = c("Dry", "Moist/Dry", "Moist"))+
+  scale_x_discrete(limits = c(1,2, 3),labels = c("Mid-Month 1","Mid-Month 2", "End of Month")) +
+  labs(x="", y="",
+       title=paste("Month ", m, sep = "")) +
+  theme_bw() + theme(axis.text.x=element_text(size=10, angle=0, vjust=0.3),
+                     axis.text.y=element_text(size=10),
+                     plot.title=element_text(size=14))
