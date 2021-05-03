@@ -2,7 +2,8 @@
 ##
 ## first attempt at getting this working
 ##
-
+library(soilDB)
+library(aqp)
 library(reshape2)
 # library(rNewhall)
 
@@ -63,18 +64,30 @@ sim <- Newhall.classic(
   ewHemisphere = 'W'
 )
 
-str(sim)
+str(sim[[1]], 1)
 
-
+##
 mcd <- do.call(
   'rbind',
   lapply(sim, '[[', 'moisture.conditions.dataframe')
 )
 
+mcd$Month <- factor(mcd$Month)
+mcd$Period <- factor(mcd$Period)
+mcd$Condition <- factor(mcd$Condition, levels = 1:3)
+table(mcd$Month, mcd$Condition)
+
+
+##
 spm <- do.call(
   'rbind',
   lapply(sim, '[[', 'soil.profile.matrix.plot')
 )
+
+
+## ??
+ms <- sapply(sim, '[[', 'moiststates')
+colSums(m) / AWC
 
 ## TODO: check soil moisture
 m <- sapply(sim, '[[', 'soilprofile')
