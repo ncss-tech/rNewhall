@@ -87,7 +87,7 @@ spm <- do.call(
 
 ## ??
 ms <- sapply(sim, '[[', 'moiststates')
-colSums(m) / AWC
+ms
 
 ## TODO: check soil moisture
 m <- sapply(sim, '[[', 'soilprofile')
