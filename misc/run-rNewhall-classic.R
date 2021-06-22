@@ -5,28 +5,14 @@
 library(soilDB)
 library(aqp)
 library(reshape2)
+
+## simpler to load via devtool::load_all()
 # library(rNewhall)
 
 library(ggplot2)
 library(grid)
 library(gridExtra)
 
-
-# ## DEB: not used in any of this code
-# # but adjusted for above
-# is.metric = FALSE
-
-# name = 'Marena Mesonet Site, OK'
-# latitude = 36.064166
-# longitude = 97.2125
-
-# in -> mm
-precipitation <- c(0.21,2.27,4.36,4.36,2.94,1.95,5.64,6.29,3.63,6.29,0.40,0.61) * 25.4
-# deg F -> deg C
-temperature <- (c(35.4,29.6,36.2,42.7,54.9,64.8,62.8,65.2,59.9,45.5,41.6,23.6) - 32) * 5/9
-
-# total water storage in mm
-AWC <- 75
 
 
 ###
@@ -37,20 +23,6 @@ precipitation <- x$climate.monthly$q50[x$climate.monthly$variable == 'Precipitat
 temperature <- c(8, 10, 11, 14, 18, 22, 25, 25, 22, 18, 12, 8)
 AWC <- 75
 
-
-## must setup classic.env first
-#
-# # single month
-# .Newhall.classic.month(
-#   m = 1,
-#   AWC = 71.3,
-#   PPT = precipitation,
-#   TAVG = temperature,
-#   latitude = 36.064166,
-#   longitude = 97.2125,
-#   nsHemisphere = 'N',
-#   ewHemisphere = 'W'
-# )
 
 # AWC units are mm
 

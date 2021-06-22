@@ -84,7 +84,7 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
   soil.profile.dims <- 8
 
   # model bins
-  water.per.slot <- AWC/((soil.profile.dims^2))
+  water.per.slot <- AWC / (soil.profile.dims^2)
   accretion.order <- c(1:(soil.profile.dims^2))
 
 
@@ -100,6 +100,8 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
 
   # 2.1.2 Calculate light Precipitation (LP) LP= MP/2
   LP <- MP / 2
+
+  ## TODO: use PET if available
 
   # 2.1.3 potential evapotranspiration
   # Need to calculate potential evapotranspiration (PE) vis the Thornthwaite (1948) equation
