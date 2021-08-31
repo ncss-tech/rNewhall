@@ -38,7 +38,7 @@ sim <- Newhall.classic(
 
 str(sim[[1]], 1)
 
-##
+## moisture state 3x per month
 mcd <- do.call(
   'rbind',
   lapply(sim, '[[', 'moisture.conditions.dataframe')
@@ -57,12 +57,14 @@ spm <- do.call(
 )
 
 
-## ??
-ms <- sapply(sim, '[[', 'moiststates')
-ms
+## VWC -> moisture state via moistureCondition()
+(ms <- sapply(sim, '[[', 'moiststates'))
+table(ms[[12]])
 
-## TODO: check soil moisture
+##
 m <- sapply(sim, '[[', 'soilprofile')
+
+# monthly fraction of AWC "filled"
 colSums(m) / AWC
 
 

@@ -27,7 +27,7 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
 
 
   # initial configuration
-  moisture.states <- c(0)
+  moisture.states <- c()
   moisture.calendar <- c()
 
   ## TODO: soil.profile.dims^2 ?
@@ -203,18 +203,11 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
     }
   }
 
+
+
   # record moisture condition (add to moisture.states vector)
-  if (sum(soil.profile[c(9,17,25)]) == 0){
-    current.moisture.condition <- 1
-  }
+  current.moisture.condition <- moistureCondition(soil.profile)
 
-  if (soil.profile[9] > 0 & soil.profile[17] > 0 & soil.profile[25] > 0){
-    current.moisture.condition <- 3
-  }
-
-  if (soil.profile[9] == 0 | soil.profile[17] == 0 | soil.profile[25] == 0 & (sum(soil.profile[c(9,17,25)]) > 0)){
-    current.moisture.condition <- 2
-  }
 
   ## DEB
   # maintain state via environment
@@ -274,16 +267,9 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
     if (sum(soil.profile) == AWC) break # if the soil profile is full, stop
   }
 
+  ## TODO: how is fraction of AWC converted into moisture state?
   # record moisture condition 2
-  if (sum(soil.profile[c(9,17,25)]) == 0){
-    current.moisture.condition = 1
-  }
-  if (soil.profile[9] > 0 & soil.profile[17] > 0 & soil.profile[25] > 0){
-    current.moisture.condition  = 3
-  }
-  if (soil.profile[9] == 0 | soil.profile[17] == 0 | soil.profile[25] == 0 & (sum(soil.profile[c(9,17,25)]) > 0)){
-    current.moisture.condition  = 2
-  }
+  current.moisture.condition <- moistureCondition(soil.profile)
 
   ## TODO: whoa, using global variables is a bad idea...
   # is this to maintain state over months?
@@ -372,17 +358,7 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
   }
 
   # record moisture condition 3
-  if (sum(soil.profile[c(9,17,25)]) == 0){
-    current.moisture.condition <- 1
-  }
-
-  if (soil.profile[9] > 0 & soil.profile[17] > 0 & soil.profile[25] > 0){
-    current.moisture.condition <- 3
-  }
-
-  if (soil.profile[9] == 0 | soil.profile[17] == 0 | soil.profile[25] == 0 & (sum(soil.profile[c(9,17,25)]) > 0)){
-    current.moisture.condition <- 2
-  }
+  current.moisture.condition <- moistureCondition(soil.profile)
 
   ## TODO: whoa, using global variables is a bad idea...
   # is this to maintain state over months?
@@ -448,6 +424,8 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
   #
   # # 2.2.7 Create soil moisture condition plot
   ## TODO: convert to factors
+  ## NOTE: moisture.states is cumulative, each iteration gets the last 3 elements
+
   moisture.conditions.dataframe <- data.frame(
     Month = m,
     Period = c(1, 2, 3),
