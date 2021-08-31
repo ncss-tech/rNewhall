@@ -47,6 +47,8 @@ mcd <- do.call(
 mcd$Month <- factor(mcd$Month)
 mcd$Period <- factor(mcd$Period)
 mcd$Condition <- factor(mcd$Condition, levels = 1:3)
+
+# looks good
 table(mcd$Month, mcd$Condition)
 
 
