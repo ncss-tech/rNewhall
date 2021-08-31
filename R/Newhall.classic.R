@@ -227,7 +227,7 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
   # }
 
   # 2.2.2 Create mid month graphs (for testing only)
-  soil.profile.matrix <- matrix(soil.profile, nrow = soil.profile.dims, ncol = soil.profile.dims, byrow = T)
+  soil.profile.matrix <- matrix(soil.profile, nrow = soil.profile.dims, ncol = soil.profile.dims, byrow = TRUE)
   soil.profile.matrix.plot <- melt(soil.profile.matrix)
   soil.profile.matrix.plot$value <- soil.profile.matrix.plot$value/water.per.slot
 
