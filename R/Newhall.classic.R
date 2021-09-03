@@ -4,7 +4,9 @@
 
 
 ## TODO:
-# * coordinates + NS + EW should all be based on either text coordinates or sf object
+# * coordinates + NS + EW should all be based on either text coordinates or sf object (https://github.com/ncss-tech/rNewhall/issues/4)
+#
+# *
 
 
 Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, ewHemisphere) {
@@ -267,7 +269,7 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
     if (sum(soil.profile) == AWC) break # if the soil profile is full, stop
   }
 
-  ## TODO: how is fraction of AWC converted into moisture state?
+
   # record moisture condition 2
   current.moisture.condition <- moistureCondition(soil.profile)
 
