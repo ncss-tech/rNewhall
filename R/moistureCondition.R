@@ -1,6 +1,21 @@
 
-## TODO: use matrix vs. vector for more intuitive eval
 
+#' @title Evaluate soil moisture condition
+#'
+#' @description Evaluate the cells of a soil moisture matrix to determin a soil moisture "condition".
+#'
+#' @param soil.profile numeric vector, typically derived from an 8x8 matrix
+#' @param n.row integer, number of rows in the soil moisture matrix
+#' @param n.col integer, number of columns in the soil moisture matrix
+#'
+#' @return integer representation of soil moisture condition:
+#'   * dry: 1
+#'   * dry/moist: 2
+#'   * moist: 3
+#'
+#' @export
+#'
+#' @examples
 moistureCondition <- function(soil.profile, n.row = 8, n.col = 8) {
 
   # init with empty result, to catch possible errors in logic
