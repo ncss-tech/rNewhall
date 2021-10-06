@@ -8,7 +8,18 @@
 #
 # *
 
-
+#' Run Newhall "classic" model using monthly climatic data
+#' @param AWC available water capacity
+#' @param PPT monthly precipitation (numeric vector length 12)
+#' @param TAVG monthly temperature (numeric vector length 12)
+#' @param latitude latitude
+#' @param longitude longitude
+#' @param nsHemisphere hemisphere (North/South)
+#' @param ewHemisphere hemisphere (East/West)
+#'
+#' @export
+#'
+#' @importFrom reshape2 melt
 Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, ewHemisphere) {
 
   ## better initial configuration:
