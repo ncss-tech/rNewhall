@@ -22,5 +22,5 @@ integer representation of soil moisture condition:
 }
 }
 \description{
-Evaluate the cells of a soil moisture matrix to determin a soil moisture "condition".
+Evaluate the cells of a soil moisture matrix to determine a soil moisture "condition".
 }

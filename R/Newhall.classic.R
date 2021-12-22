@@ -76,7 +76,10 @@ Newhall.classic <-  function(AWC, PPT, TAVG, latitude, longitude, nsHemisphere, 
 
 
 .Newhall.classic.month <-  function(m, AWC, PPT, TAVG, latitude, longitude, nsHemisphere, ewHemisphere){
-
+  
+  pe.bins <- NULL
+  temp.bins <- NULL
+  
   ## setup
 
   # load constants
